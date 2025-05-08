@@ -1,3 +1,3 @@
 # LLM-from-scratch
 
-Author: Jay Kabra
+Author: Viraj Utekar
