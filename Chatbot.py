@@ -2,11 +2,10 @@ import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Load your fine-tuned chatbot model
-model_path = "./gpt2-maui-chatbot"  # change if saved elsewhere
+model_path = "./gpt2-maui-chatbot"
 tokenizer = GPT2Tokenizer.from_pretrained(model_path)
 model = GPT2LMHeadModel.from_pretrained(model_path)
 
-# Set model to GPU if available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
@@ -28,16 +27,19 @@ while True:
             do_sample=True,
             top_k=50,
             top_p=0.95,
-            temperature=0.8,
+            temperature=0.1,
             pad_token_id=tokenizer.eos_token_id,
             eos_token_id=tokenizer.eos_token_id
         )
 
-    # Decode and extract the answer part only
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     if "A:" in generated_text:
         answer = generated_text.split("A:")[1].strip()
     else:
         answer = generated_text.strip()
 
-    print(f"A: {answer}")
+    # Heuristic check for fallback
+    if len(answer.split()) < 5 or answer.lower() in ["i don't know", "not sure", "unknown"]:
+        print("A: Answer not found.")
+    else:
+        print(f"A: {answer}")
